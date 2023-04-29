@@ -6,12 +6,17 @@ public class GameManager : MonoBehaviour
 {
     public TalkManager talkManager;
     public GameObject talkPanel;
+    public QuestManager questManager;
     public Image portraitImg;
     public TMP_Text talkText;
     public GameObject scanObject;
     public bool isAction;
     public int talkIndex;
 
+    private void Start()
+    {
+        Debug.Log(questManager.CheckQuest());
+    }
     // Update is called once per frame
     public void Action(GameObject scanObj)
     {
@@ -24,11 +29,14 @@ public class GameManager : MonoBehaviour
 
     void Talk(int id, bool isNpc)
     {
-        string talkData = talkManager.GetTalk(id, talkIndex);
+        // Set talk Data
+        int questTalkIndex = questManager.GetQuestTalkIndex(id);
+        string talkData = talkManager.GetTalk(id + questTalkIndex, talkIndex);
 
         if (talkData == null) {
             isAction = false;
             talkIndex = 0;
+            Debug.Log(questManager.CheckQuest(id));
             return;
         }
 
