@@ -5,10 +5,12 @@ using TMPro;
 public class GameManager : MonoBehaviour
 {
     public TalkManager talkManager;
-    public GameObject talkPanel;
+    public Animator talkPanel;
+    public Animator PortraitAnim;
     public QuestManager questManager;
     public Image portraitImg;
-    public TMP_Text talkText;
+    public Sprite prePortrait;
+    public TypeEffect talk;
     public GameObject scanObject;
     public bool isAction;
     public int talkIndex;
@@ -16,6 +18,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         Debug.Log(questManager.CheckQuest());
+        GetComponent<Animator>();
     }
     // Update is called once per frame
     public void Action(GameObject scanObj)
@@ -23,8 +26,8 @@ public class GameManager : MonoBehaviour
         scanObject = scanObj;
         ObjData objData = scanObj.GetComponent<ObjData>();
         Talk(objData.id, objData.isNpc);
-        
-        talkPanel.SetActive(isAction);
+
+        talkPanel.SetBool("isShow", isAction);
     }
 
     void Talk(int id, bool isNpc)
@@ -42,14 +45,19 @@ public class GameManager : MonoBehaviour
 
         if (isNpc)
         {
-            talkText.text = talkData.Split(':')[0];
+            talk.SetMsg(talkData.Split(":")[0]);
 
             portraitImg.sprite = talkManager.GetPortrait(id, int.Parse(talkData.Split(':')[1]));
             portraitImg.color = new Color(1, 1, 1, 1);
+            if(prePortrait != portraitImg.sprite)
+            {
+                PortraitAnim.SetTrigger("doEffect");
+                prePortrait = portraitImg.sprite;
+            }
         }
         else
         {
-            talkText.text = talkData;
+            talk.SetMsg(talkData);
 
             portraitImg.color = new Color(1, 1, 1, 0);
         }
