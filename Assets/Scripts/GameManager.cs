@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.VisualScripting;
 
 public class GameManager : MonoBehaviour
 {
@@ -11,16 +12,31 @@ public class GameManager : MonoBehaviour
     public Image portraitImg;
     public Sprite prePortrait;
     public TypeEffect talk;
+    public TextMeshProUGUI questText;
+    public GameObject menuSet;
     public GameObject scanObject;
+    public GameObject player;
     public bool isAction;
     public int talkIndex;
 
-    private void Start()
+    void Start()
     {
-        Debug.Log(questManager.CheckQuest());
-        GetComponent<Animator>();
+        GameLoad();
+        questText.text = questManager.CheckQuest();
     }
     // Update is called once per frame
+
+    void Update()
+    {
+        if (Input.GetButtonDown("Cancel"))
+        {
+            if (menuSet.activeSelf)
+                menuSet.SetActive(false);
+            else
+                menuSet.SetActive(true);
+        }
+            
+    }
     public void Action(GameObject scanObj)
     {
         scanObject = scanObj;
@@ -36,10 +52,12 @@ public class GameManager : MonoBehaviour
         int questTalkIndex = questManager.GetQuestTalkIndex(id);
         string talkData = talkManager.GetTalk(id + questTalkIndex, talkIndex);
 
+
+        //End talk
         if (talkData == null) {
             isAction = false;
             talkIndex = 0;
-            Debug.Log(questManager.CheckQuest(id));
+            questText.text = questManager.CheckQuest(id);
             return;
         }
 
@@ -64,5 +82,30 @@ public class GameManager : MonoBehaviour
 
         isAction = true;
         talkIndex++;
+    }
+
+    public void GameSave()
+    {
+        PlayerPrefs.SetFloat("PlayerX", player.transform.position.x);
+        PlayerPrefs.SetFloat("PlayerY", player.transform.position.y);
+        PlayerPrefs.SetInt("QustId", questManager.questId);
+        PlayerPrefs.SetInt("QustActionIndex", questManager.questActionIndex);
+        PlayerPrefs.Save();
+
+        menuSet.SetActive(false);
+    }
+
+    public void GameLoad()
+    {
+        if (!PlayerPrefs.HasKey("PlayerX"))
+            return;
+        float x = PlayerPrefs.GetFloat("PlayerX");
+        float y = PlayerPrefs.GetFloat("PlayerY");
+        int questId = PlayerPrefs.GetInt("QustId");
+        int questActionIndex = PlayerPrefs.GetInt("QustActionIndex");
+    }
+    public void GameExit()
+    {
+        Application.Quit();
     }
 }
